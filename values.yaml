@@ -2,7 +2,7 @@ prometheus:
   name: prometheus
   service: svprometheus
   image: prom/prometheus        
-  port: 9090
+  port: 8089
  
 
 snmpexporter:
