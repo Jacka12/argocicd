@@ -1,0 +1,129 @@
+# Sample config for Prometheus.
+
+global:
+  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+      monitor: 'example'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets: ['192.168.50.254:30010']
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  - "first_rules.yml"
+  # - "second_rules.yml"
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'prometheus'
+
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 5s
+    scrape_timeout: 5s
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: node
+    # If prometheus-node-exporter is installed, grab stats about the local
+    # machine by default.
+    static_configs:
+            - targets: ['172.23.77.50:9182','192.168.50.7:9182','192.168.50.8:9182']
+  - job_name: synology
+    metrics_path: /snmp
+    params:
+      module: [if-mib]
+    static_configs:
+      - targets:
+        - 192.168.10.200
+        - 10.200.200.216
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 192.168.50.254:30008  # URL as shown on the UI
+  - job_name: 'prometheus-blackbox-exporter-icmp'
+    metrics_path: /probe
+    params:
+      module: [icmp]
+    static_configs:
+      - targets:
+        - 192.168.10.200
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 192.168.50.254:30009
+
+  - job_name: 'http'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]  # Look for a HTTP 200 response.
+    static_configs:
+      - targets:
+        - https://arevo.com   # Target to probe with http.
+        - https://metabase.arevo.com   # Target to probe with https.
+        - https://print.arevo.com #
+        - https://scotsman.me
+        - https://shop-api.scotsman.me/health
+        - https://shop-api.superstrata.bike/health
+        - https://superstrata.bike
+        - https://test.arevo.com
+        - https://mishima.studio/
+        - https://shop-api.mishima.studio/
+        - https://hubble-service-api.arevo.com/healthz
+        - https://ltdc.arevo.com/api/datacollector/v2/
+        - https://htdc.arevo.com/api/datacollector/v2/  
+        - http://192.168.50.230:8001
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 192.168.50.254:30009  # The blackbox exporter's real hostname:port.
+  - job_name: 'vcenter_node'
+    scrape_timeout: 15s
+    scrape_interval: 15s
+    metrics_path: '/metrics'
+    static_configs:
+      - targets:
+        - '192.168.60.250' 
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 192.168.50.254:30012 
+  - job_name: snmp
+    metrics_path: /snmp1
+    params:
+      module: [if-mib]
+    static_configs:
+      - targets:
+        - 192.168.10.200
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 192.168.50.254:30008  # URL as shown on the UI

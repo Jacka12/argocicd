@@ -1,0 +1,26 @@
+global:
+ resolve_timeout: 1p
+
+route:
+ group_by: ['alertname']
+ group_wait: 10s
+ group_interval: 10s
+ repeat_interval: 1h
+ receiver: 'email-notifications'
+
+receivers:
+- name: 'email-notifications'
+  email_configs:
+  - to: vituantu90@gmail.com
+    from: vituantu90@gmail.com
+    smarthost: smtp.gmail.com:587
+    auth_username: vituantu90@gmail.com
+    auth_identity: vituantu90@gmail.com
+    auth_password: miujack09
+    send_resolved: true
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'waring'
+    equal: ['alertname', 'dev', 'instance']

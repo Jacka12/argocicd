@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.prometheus.name }}
+  labels: {{ include "common.labels" . | nindent 6 }}
+spec:
+  selector:
+    matchLabels: {{ include "common.labels" . | nindent 8 }}
+  serviceName: {{ .Values.prometheus.service }}
+  replicas: {{ .Values.replicas }}
+  template:
+    metadata:
+      labels: {{ include "common.labels" . | nindent 8 }}
+    spec:
+      terminationGracePeriodSeconds: 10
+      hostAliases:
+      - ip: "192.168.50.253"
+        hostnames:
+         - "jack.test2"
+         - "jack.test1"
+      containers:
+      - name: {{ .Values.prometheus.name }}
+        image: {{ .Values.prometheus.image }}
+        ports:
+        - containerPort: {{ .Values.prometheus.port }}
+          name: {{ .Values.prometheus.name }}
+        volumeMounts:
+        - mountPath: "/etc/prometheus"
+          name: myvolume1
+          #  volumeMounts:
+          # - mountPath: "/etc/v1/"
+          #   name: myvolume2
+      volumes: 
+      - name: myvolume1
+        #   configMap:
+        #  name: configmaptest            
+        persistentVolumeClaim:
+          claimName: pvc1
+          #- name: myvolume2
+          # configMap:
+          #  name: configmaptest
+        
