@@ -1,0 +1,21 @@
+prometheus:
+  name: prometheus
+  service: svprometheus
+  image: prom/prometheus        
+  port: 9090
+ 
+
+snmpexporter:
+  name: snmp-exporter
+  service: svsnmp_exporter
+  image: prom/snmp-expoter
+  port: 9116
+
+blackbox:
+  name: blackbox
+  service: svblackbox
+  image: prom/blackbox-exporter
+  port: 9115
+
+replicas: 1
+

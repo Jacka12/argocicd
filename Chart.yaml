@@ -1,0 +1,6 @@
+apiVersion: v2
+name: prommetheus
+description: A Helm chart for prometheys
+type: application
+version: 0.1.0
+appVersion: latest
