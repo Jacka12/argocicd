@@ -17,5 +17,5 @@ blackbox:
   image: prom/blackbox-exporter
   port: 9115
 
-replicas: 5
+replicas: 10
 
